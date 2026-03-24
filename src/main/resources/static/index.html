@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Scarcity Prediction & Distribution Optimizer</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>💧 Water Scarcity Optimizer</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" onclick="showSection('dashboard')">Dashboard</a></li>
+                <li><a href="#predictions" onclick="showSection('predictions')">Predictions</a></li>
+                <li><a href="#communities" onclick="showSection('communities')">Communities</a></li>
+                <li><a href="#data" onclick="showSection('data')">Data Management</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <h2>System Dashboard</h2>
+            
+            <div class="dashboard-grid">
+                <!-- System Health Card -->
+                <div class="card health-card">
+                    <h3>System Health</h3>
+                    <div id="health-status">Loading...</div>
+                    <p id="health-time"></p>
+                </div>
+
+                <!-- Key Metrics Cards -->
+                <div class="card metric-card">
+                    <h3>Communities Monitored</h3>
+                    <div class="metric-value" id="communities-count">-</div>
+                    <p>Active communities in system</p>
+                </div>
+
+                <div class="card metric-card warning">
+                    <h3>Water Deficit Alert</h3>
+                    <div class="metric-value" id="deficit-count">-</div>
+                    <p id="deficit-percentage">-</p>
+                </div>
+
+                <div class="card metric-card critical">
+                    <h3>Critical Predictions</h3>
+                    <div class="metric-value" id="critical-count">-</div>
+                    <p>Immediate action required</p>
+                </div>
+
+                <div class="card metric-card">
+                    <h3>Model Confidence</h3>
+                    <div class="metric-value" id="model-confidence">-</div>
+                    <p>Average prediction accuracy</p>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="chart-grid">
+                <div class="card">
+                    <h3>Water Status Distribution</h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="card">
+                    <h3>Scarcity Levels</h3>
+                    <canvas id="scarcityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="refreshDashboard()">Refresh Dashboard</button>
+                <button class="btn btn-secondary" onclick="generateAllPredictions()">Generate All Predictions</button>
+            </div>
+        </section>
+
+        <!-- Predictions Section -->
+        <section id="predictions" class="section">
+            <h2>Water Scarcity Predictions</h2>
+            
+            <div class="form-group">
+                <label for="community-select">Select Community:</label>
+                <select id="community-select" onchange="updatePredictionDisplay()">
+                    <option value="">-- Choose a community --</option>
+                </select>
+                <button class="btn btn-primary" onclick="generatePrediction()">Generate Prediction</button>
+            </div>
+
+            <div class="prediction-results">
+                <div class="card" id="prediction-card" style="display:none;">
+                    <h3>Prediction Results</h3>
+                    <div class="prediction-grid">
+                        <div class="prediction-item">
+                            <label>Scarcity Level:</label>
+                            <div class="prediction-value" id="pred-level">-</div>
+                        </div>
+                        <div class="prediction-item">
+                            <label>Scarcity Percentage:</label>
+                            <div class="prediction-value" id="pred-percentage">-</div>
+                        </div>
+                        <div class="prediction-item">
+                            <label>Confidence:</label>
+                            <div class="prediction-value" id="pred-confidence">-</div>
+                        </div>
+                        <div class="prediction-item">
+                            <label>Predicted Deficit:</label>
+                            <div class="prediction-value" id="pred-deficit">-</div>
+                        </div>
+                    </div>
+                    <div class="prediction-reasoning">
+                        <label>Analysis:</label>
+                        <p id="pred-reasoning">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Alerts -->
+            <div class="alerts-section">
+                <h3>Critical Alerts</h3>
+                <div id="alerts-container"></div>
+            </div>
+        </section>
+
+        <!-- Communities Section -->
+        <section id="communities" class="section">
+            <h2>Community Management</h2>
+            
+            <div class="form-section">
+                <h3>Add New Community</h3>
+                <form id="community-form" onsubmit="addCommunity(event)">
+                    <input type="text" id="comm-name" placeholder="Community Name" required>
+                    <input type="text" id="comm-region" placeholder="Region" required>
+                    <input type="number" id="comm-latitude" placeholder="Latitude" step="0.01">
+                    <input type="number" id="comm-longitude" placeholder="Longitude" step="0.01">
+                    <input type="number" id="comm-elevation" placeholder="Elevation (m)">
+                    <button type="submit" class="btn btn-primary">Add Community</button>
+                </form>
+            </div>
+
+            <div class="communities-list">
+                <h3>Communities List</h3>
+                <table id="communities-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Region</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="communities-tbody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Data Management Section -->
+        <section id="data" class="section">
+            <h2>Water Data Management</h2>
+            
+            <div class="form-section">
+                <h3>Record Water Data</h3>
+                <form id="water-data-form" onsubmit="addWaterData(event)">
+                    <select id="data-community" required>
+                        <option value="">-- Select Community --</option>
+                    </select>
+                    <input type="number" id="data-rainfall" placeholder="Rainfall (mm)" step="0.1">
+                    <input type="number" id="data-groundwater" placeholder="Groundwater Supply (L)" required>
+                    <input type="number" id="data-surface" placeholder="Surface Water (L)" required>
+                    <input type="number" id="data-recycled" placeholder="Recycled Water (L)">
+                    <input type="number" id="data-residential" placeholder="Residential Usage (L)" required>
+                    <input type="number" id="data-agricultural" placeholder="Agricultural Usage (L)" required>
+                    <input type="number" id="data-industrial" placeholder="Industrial Usage (L)" required>
+                    <input type="number" id="data-quality" placeholder="Quality Score (0-10)" step="0.1" min="0" max="10">
+                    <button type="submit" class="btn btn-primary">Save Water Data</button>
+                </form>
+            </div>
+
+            <div class="data-stats">
+                <h3>Water Statistics</h3>
+                <div id="data-stats-container"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Water Scarcity Prediction Optimizer | AI-Powered Decision Support System</p>
+        <p>Last Updated: <span id="last-update">-</span></p>
+    </footer>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
